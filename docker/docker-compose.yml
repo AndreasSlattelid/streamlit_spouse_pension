@@ -1,5 +1,0 @@
-services:
-  streamlit:
-    build: .\Dockerfile
-    context: ./
-  ports: -"8081:8501"

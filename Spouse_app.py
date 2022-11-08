@@ -202,8 +202,7 @@ fig_reserve = px.line(df_plt, x="length_contract",
 if submit_button:
     st.dataframe(df_reserve)
     st.plotly_chart(fig_reserve)
-
-download_btn = st.sidebar.download_button("Download CSV",
-                                          df_reserve.to_csv(),
-                                          file_name="reserves.csv",
-                                          mime="text/csv")
+    st.sidebar.download_button("Download CSV",
+                                        df_reserve.to_csv(),
+                                        file_name="reserves.csv",
+                                         mime="text/csv")

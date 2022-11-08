@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import k13
+import io
 import streamlit as st
 
 import plotly.express as px
@@ -198,11 +199,18 @@ fig_reserve = px.line(df_plt, x="length_contract",
                       hover_data={'value':':.0f'}, 
                       title="Overview reserve")
 
+buffer = io.BytesIO()
+
+with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+    df_reserve.to_excel(writer, index=False, sheet_name= "Reserve")
+    writer.save()
 
 if submit_button:
     st.dataframe(df_reserve)
     st.plotly_chart(fig_reserve)
-    st.sidebar.download_button("Download CSV",
-                                        df_reserve.to_csv(),
-                                        file_name="reserves.csv",
-                                         mime="text/csv")
+    st.sidebar.download_button(
+        label="Download Excel",
+        data=buffer,
+        file_name="reserve.xlsx",
+        mime="application/vnd.ms-excel"
+    )

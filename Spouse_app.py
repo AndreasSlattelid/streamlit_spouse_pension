@@ -10,6 +10,10 @@ from siuba import _, gather
 
 st.title("Spouse Pension using K13")
 
+Y = st.sidebar.number_input(
+    "Calculation year (Y)", min_value= 2013, value = 2022, step = 1
+)
+
 r = st.sidebar.number_input(
     "Interest rate (r)", min_value=0.0, max_value=1.0, value=0.03, step=0.01
 )
@@ -61,36 +65,36 @@ def v(t):
 
 
 def p_00(t: float, n: int) -> float:
-    p1_survive = k13.p_surv(x=age_p1, G=G_p1, Y=2022, t=t, s=n)
-    p2_survive = k13.p_surv(x=age_p2, G=G_p2, Y=2022, t=t, s=n)
+    p1_survive = k13.p_surv(x=age_p1, G=G_p1, Y=Y, t=t, s=n)
+    p2_survive = k13.p_surv(x=age_p2, G=G_p2, Y=Y, t=t, s=n)
 
     return round(p1_survive*p2_survive, 4)
 
 
 def p_01(t, n):
-    p1_die = (1-k13.p_surv(x=age_p1, G=G_p1, Y=2022, t=t, s=n))
-    p2_survive = k13.p_surv(x=age_p2, G=G_p2, Y=2022, t=t, s=n)
+    p1_die = (1-k13.p_surv(x=age_p1, G=G_p1, Y=Y, t=t, s=n))
+    p2_survive = k13.p_surv(x=age_p2, G=G_p2, Y=Y, t=t, s=n)
 
     return round(p1_die*p2_survive, 4)
 
 
 def p_02(t, n):
-    p1_survive = k13.p_surv(x=age_p1, G=G_p1, Y=2022, t=t, s=n)
-    p2_die = (1 - k13.p_surv(x=age_p2, G=G_p2, Y=2022, t=t, s=n))
+    p1_survive = k13.p_surv(x=age_p1, G=G_p1, Y=Y, t=t, s=n)
+    p2_die = (1 - k13.p_surv(x=age_p2, G=G_p2, Y=Y, t=t, s=n))
 
     return round(p1_survive*p2_die, 4)
 
 
 def p_11(t, n):
     # p2 remains alive
-    p2_survive = k13.p_surv(x=age_p2, G=G_p2, Y=2022, t=t, s=n)
+    p2_survive = k13.p_surv(x=age_p2, G=G_p2, Y=Y, t=t, s=n)
 
     return round(p2_survive, 4)
 
 
 def p_22(t, n):
     # p1 remains alive
-    p1_survive = k13.p_surv(x=age_p1, G=G_p1, Y=2022, t=t, s=n)
+    p1_survive = k13.p_surv(x=age_p1, G=G_p1, Y=Y, t=t, s=n)
 
     return round(p1_survive, 4)
 
@@ -179,7 +183,7 @@ reserve_2 = pd.Series(list(map(V_2, length_contract)))
 reserve = {"length_contract": length_contract, "reserve_state0": reserve_0,
            "reserve_state1": reserve_1, "reserve_state2": reserve_2}
 
-df_reserve = pd.DataFrame(reserve).reset_index(drop=True)
+df_reserve = pd.DataFrame(reserve)
 
 
 # dplyr syntax as I love this way of data wrangeling:

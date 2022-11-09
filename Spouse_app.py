@@ -179,7 +179,7 @@ reserve_2 = pd.Series(list(map(V_2, length_contract)))
 reserve = {"length_contract": length_contract, "reserve_state0": reserve_0,
            "reserve_state1": reserve_1, "reserve_state2": reserve_2}
 
-df_reserve = pd.DataFrame(reserve)
+df_reserve = pd.DataFrame(reserve).reset_index(drop=True)
 
 
 # dplyr syntax as I love this way of data wrangeling:
@@ -199,18 +199,21 @@ fig_reserve = px.line(df_plt, x="length_contract",
                       hover_data={'value':':.0f'}, 
                       title="Overview reserve")
 
-buffer = io.BytesIO()
+#buffer = io.BytesIO()
 
-with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-    df_reserve.to_excel(writer, index=False, sheet_name= "Reserve")
-    writer.save()
+#with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+#    worksheet = df_reserve.to_excel(writer, index=False, sheet_name= "Reserve")
+#    writer.save()
+
+
+#dwnl_button = st.sidebar.download_button(
+#        label="Download Excel",
+#        data=buffer,
+#        file_name="reserve.xlsx",
+#        mime="application/vnd.ms-excel",
+#        on_click= st.dataframe(df_reserve)
+#    )
 
 if submit_button:
     st.dataframe(df_reserve)
     st.plotly_chart(fig_reserve)
-    st.sidebar.download_button(
-        label="Download Excel",
-        data=buffer,
-        file_name="reserve.xlsx",
-        mime="application/vnd.ms-excel"
-    )

@@ -11,19 +11,19 @@ from siuba import _, gather
 st.title("Spouse Pension using K13")
 
 Y = st.sidebar.number_input(
-    "Calculation year (Y)", min_value= 2013, value = 2022, step = 1
+    "Calculation year (Y)", value = 2022, step = 1
 )
 
 r = st.sidebar.number_input(
-    "Interest rate (r)", min_value=0.0, max_value=1.0, value=0.03, step=0.01
+    "Interest rate (r)", value=0.03, step=0.01
 )
 
 T = st.sidebar.number_input(
-    "Length of contract (T)", min_value=0, max_value=120, value=80
+    "Length of contract (T)", max_value=120, value=80, step= 1
 )
 
 P = st.sidebar.number_input(
-    "Desired Pension (P)", min_value=0, max_value=10**(6), value=10**(5), step=10000
+    "Desired Pension (P)", max_value=10**(6), value=10**(5), step=10000
 )
 
 submit_button = st.sidebar.button(
@@ -35,16 +35,49 @@ c1, c2 = st.columns((2, 2))
 genders = ["M", "F"]
 
 with st.container():
-    G_p1 = c1.radio("Gender person 1:", genders, index=0)
-    age_p1 = c1.number_input("Age person 1", min_value=16,
-                             max_value=120, value=25)
+    G_p1 = c1.radio("Gender person One:", genders, index=0)
+    age_p1 = c1.number_input("Age person One", max_value=120, value=25)
     st.markdown("***")
 
 
 with st.container():
-    G_p2 = c2.radio("Gender person 2:", genders, index=1)
-    age_p2 = c2.number_input("Age person 2:", min_value=16,
-                             max_value=120, value=24)
+    G_p2 = c2.radio("Gender person Two:", genders, index=1)
+    age_p2 = c2.number_input("Age person Two:", max_value=120, value=24)
+
+
+def validate_input():
+    no_errors = True
+
+    if Y < 2013:
+        st.write("Please choose Y >= 2013")
+        no_errors = False
+    
+    if T < 0:
+        st.write("Please choose T > 0")
+        no_errors = False
+
+    if P < 0:
+        st.write("Please choose a pension P >= 0")
+        no_errors = False
+
+    if age_p1 < 16:
+        st.write("Please choose Age person One >= 16")
+        no_errors = False
+
+    if age_p2 < 16:
+        st.write("Please choose Age person Two >= 16")
+        no_errors = False
+    
+    if G_p1 not in genders:
+        st.write("Please choose Gender person One equal to 'M' or 'F'")
+        no_errors = False
+
+    if G_p2 not in genders:
+        st.write("Please choose Gender person Two equal to 'M' or 'F'")
+        no_errors = False
+    
+
+    return no_errors
 
 # States:
   # p1: person aged x
@@ -112,25 +145,6 @@ def prem_lower_summand(n):
     return v(n)*p_00(0, n)
 
 
-# Contract lasts from 0 to T - 1, I need to be careful: indexing starts at 0 in python.
-length_contract = np.arange(0, T, 1)
-
-prem_above_expr = P*sum(list(map(prem_upper_summand, length_contract)))
-prem_below_expr = sum(list(map(prem_lower_summand, length_contract)))
-
-premium_yearly = prem_above_expr/prem_below_expr
-
-with st.container():
-    col1, col2 = st.columns(2)
-    if submit_button:
-        with col1:
-            st.text(
-                f"The yearly premium should be NOK: {round(premium_yearly)}")
-    if submit_button:
-        with col2:
-            st.text(
-                f"The monthly premium should be NOK: {round(premium_yearly/12)}")
-
 
 def V_0(t: float) -> float:
 
@@ -172,36 +186,7 @@ def V_2(t: float) -> float:
     return (ans)
 
 
-length_contract = np.arange(0, T, 1)
 
-reserve_0 = pd.Series(list(map(V_0, length_contract)))
-
-reserve_1 = pd.Series(list(map(V_1, length_contract)))
-
-reserve_2 = pd.Series(list(map(V_2, length_contract)))
-
-reserve = {"length_contract": length_contract, "reserve_state0": reserve_0,
-           "reserve_state1": reserve_1, "reserve_state2": reserve_2}
-
-df_reserve = pd.DataFrame(reserve)
-
-
-# dplyr syntax as I love this way of data wrangeling:
-df_plt = df_reserve >> gather("reserve_state", "value", _[
-    "reserve_state0":"reserve_state2"])
-
-# st.write(df_plt)
-
-fig_reserve = px.line(df_plt, x="length_contract",
-                      y="value",
-                      color="reserve_state",
-                      labels={
-                          "length_contract": "Contract period (Years)",
-                          "value": "Reserve",
-                          "reserve_state": "Reserve in states"
-                      },
-                      hover_data={'value':':.0f'}, 
-                      title="Overview reserve")
 
 #buffer = io.BytesIO()
 
@@ -218,6 +203,49 @@ fig_reserve = px.line(df_plt, x="length_contract",
 #        on_click= st.dataframe(df_reserve)
 #    )
 
-if submit_button:
+if submit_button and validate_input():
+
+    # Contract lasts from 0 to T - 1, I need to be careful: indexing starts at 0 in python.
+    length_contract = np.arange(0, T, 1)
+
+    prem_above_expr = P*sum(list(map(prem_upper_summand, length_contract)))
+    prem_below_expr = sum(list(map(prem_lower_summand, length_contract)))
+
+    premium_yearly = prem_above_expr/prem_below_expr
+
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            st.text(
+                f"The yearly premium should be NOK: {round(premium_yearly)}")
+        with col2:
+            st.text(
+                f"The monthly premium should be NOK: {round(premium_yearly/12)}")
+
+    reserve_0 = pd.Series(list(map(V_0, length_contract)))
+
+    reserve_1 = pd.Series(list(map(V_1, length_contract)))
+
+    reserve_2 = pd.Series(list(map(V_2, length_contract)))
+
+    reserve = {"length_contract": length_contract, "reserve_state0": reserve_0,
+               "reserve_state1": reserve_1, "reserve_state2": reserve_2}
+
+    df_reserve = pd.DataFrame(reserve)
+
+    # dplyr syntax as I love this way of data wrangeling:
+    df_plt = df_reserve >> gather("reserve_state", "value", _["reserve_state0":"reserve_state2"])
+
+    fig_reserve = px.line(df_plt, x="length_contract",
+                        y="value",
+                        color="reserve_state",
+                        labels={
+                            "length_contract": "Contract period (Years)",
+                            "value": "Reserve",
+                            "reserve_state": "Reserve in states"
+                        },
+                        hover_data={'value':':.0f'}, 
+                        title="Overview reserve")
+
     st.dataframe(df_reserve)
     st.plotly_chart(fig_reserve)

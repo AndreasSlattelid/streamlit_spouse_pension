@@ -52,7 +52,7 @@ def validate_input():
         st.write("Please choose Y >= 2013")
         no_errors = False
     
-    if T < 0:
+    if T <= 0:
         st.write("Please choose T > 0")
         no_errors = False
 
@@ -60,12 +60,12 @@ def validate_input():
         st.write("Please choose a pension P >= 0")
         no_errors = False
 
-    if age_p1 < 16:
-        st.write("Please choose Age person One >= 16")
+    if age_p1 < 18:
+        st.write("Please choose Age person One >= 18")
         no_errors = False
 
-    if age_p2 < 16:
-        st.write("Please choose Age person Two >= 16")
+    if age_p2 < 18:
+        st.write("Please choose Age person Two >= 18")
         no_errors = False
     
     if G_p1 not in genders:

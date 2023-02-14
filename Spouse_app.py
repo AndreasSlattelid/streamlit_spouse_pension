@@ -11,7 +11,7 @@ from siuba import _, gather
 st.title("Spouse Pension using K13")
 
 Y = st.sidebar.number_input(
-    "Calculation year (Y)", value = 2022, step = 1
+    "Calculation year (Y)", value = 2023, step = 1
 )
 
 r = st.sidebar.number_input(
@@ -68,15 +68,6 @@ def validate_input():
         st.write("Please choose Age person Two >= 18")
         no_errors = False
     
-    if G_p1 not in genders:
-        st.write("Please choose Gender person One equal to 'M' or 'F'")
-        no_errors = False
-
-    if G_p2 not in genders:
-        st.write("Please choose Gender person Two equal to 'M' or 'F'")
-        no_errors = False
-    
-
     return no_errors
 
 # States:

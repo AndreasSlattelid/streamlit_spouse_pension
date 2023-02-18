@@ -235,8 +235,9 @@ if submit_button and validate_input():
                             "value": "Reserve",
                             "reserve_state": "Reserve in states"
                         },
-                        hover_data={'value':':.0f'}, 
                         title="Overview reserve")
+                        
+    fig_reserve.update_traces(hovertemplate='Contract length: %{x} <br>Reserve: NOK %{y:,.0f}')
 
     st.dataframe(df_reserve)
     st.plotly_chart(fig_reserve)

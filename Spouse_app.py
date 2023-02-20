@@ -219,13 +219,13 @@ if submit_button and validate_input():
 
     reserve_2 = pd.Series(list(map(V_2, length_contract)))
 
-    reserve = {"length_contract": length_contract, "reserve_state0": reserve_0,
-               "reserve_state1": reserve_1, "reserve_state2": reserve_2}
+    reserve = {"length_contract": length_contract, "State0": reserve_0,
+               "State1": reserve_1, "State2": reserve_2}
 
     df_reserve = pd.DataFrame(reserve)
 
     # dplyr syntax as I love this way of data wrangeling:
-    df_plt = df_reserve >> gather("reserve_state", "value", _["reserve_state0":"reserve_state2"])
+    df_plt = df_reserve >> gather("reserve_state", "value", _["State0":"State2"])
 
     fig_reserve = px.line(df_plt, x="length_contract",
                         y="value",

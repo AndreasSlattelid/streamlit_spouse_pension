@@ -233,7 +233,7 @@ if submit_button and validate_input():
                         labels={
                             "length_contract": "Contract period (Years)",
                             "value": "Reserve",
-                            "reserve_state": "Reserve in states"
+                            "reserve_state": "Reserve"
                         },
                         title="Overview reserve")
                         
